@@ -16,7 +16,7 @@ import random
 from scipy.special import expit
 
 #Preprocessing of Data
-#device = 0
+device = 0
 
 def preprocessing_data():
     filepath = './data/'
@@ -202,10 +202,10 @@ class rnn_decoder(nn.Module):
         _, batch_size, _ = encoder_last_hidden_state.size()
         
         decoder_current_hidden_state = None if encoder_last_hidden_state is None else encoder_last_hidden_state
-        #decoder_cxt = torch.zeros(decoder_current_hidden_state.size()).to(device)
-        decoder_cxt = torch.zeros(decoder_current_hidden_state.size())
-        #decoder_current_input_word = Variable(torch.ones(batch_size, 1)).long().to(device)
-        decoder_current_input_word = Variable(torch.ones(batch_size, 1)).long()
+        decoder_cxt = torch.zeros(decoder_current_hidden_state.size()).to(device)
+        #decoder_cxt = torch.zeros(decoder_current_hidden_state.size())
+        decoder_current_input_word = Variable(torch.ones(batch_size, 1)).long().to(device)
+        #decoder_current_input_word = Variable(torch.ones(batch_size, 1)).long()
         seq_logProb = []
         seq_predictions = []
 
@@ -313,7 +313,7 @@ def train(model, epoch, loss_fn, parameters, optimizer, train_loader):
     for batch_idx, batch in enumerate(train_loader):
         print(batch_idx)
         avi_feats, ground_truths, lengths = batch
-        #avi_feats, ground_truths = Variable(avi_feats).to(device), Variable(ground_truths).to(device)
+        avi_feats, ground_truths = Variable(avi_feats).to(device), Variable(ground_truths).to(device)
         
         optimizer.zero_grad()
         seq_logProb, seq_predictions = model(avi_feats, target_sentences = ground_truths, mode = 'train', tr_steps = epoch)
@@ -335,7 +335,7 @@ def test(test_loader, model, indextoword):
     for batch_idx, batch in enumerate(test_loader):
      
         id, avi_feats = batch
-        #avi_feats = avi_feats.to(device)
+        avi_feats = avi_feats.to(device)
         id, avi_feats = id, Variable(avi_feats).float()
         
         seq_logProb, seq_predictions = model(avi_feats, mode='inference')
@@ -364,7 +364,7 @@ def main():
     decoder = rnn_decoder(512, len(indextoword) +4, len(indextoword) +4, 1024, 0.28)
     model = MODELS(encoder=encoder, decoder=decoder)
     
-    #model = model.to(device)
+    model = model.to(device)
     loss_fn = nn.CrossEntropyLoss()
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, lr=0.0001)
